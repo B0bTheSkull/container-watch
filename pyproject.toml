@@ -1,0 +1,45 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "container-watch"
+version = "0.1.0"
+description = "Docker runtime security monitor — alerts on privileged containers, sensitive mounts, host networking, and other dangerous configurations"
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.10"
+authors = [{ name = "B0bTheSkull" }]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Information Technology",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Security",
+]
+dependencies = [
+    "docker>=7.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7", "ruff>=0.1"]
+
+[project.scripts]
+container-watch = "containerwatch.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/B0bTheSkull/container-watch"
+Issues = "https://github.com/B0bTheSkull/container-watch/issues"
+
+[tool.setuptools.packages.find]
+include = ["containerwatch*"]
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]
+ignore = ["E501"]

@@ -1,0 +1,54 @@
+[
+  {
+    "Id": "abc123def456",
+    "Name": "/safe-nginx",
+    "Config": {"User": "101"},
+    "HostConfig": {"Privileged": false, "PidMode": "default", "NetworkMode": "bridge", "CapAdd": null, "SecurityOpt": null},
+    "Mounts": [{"Source": "/srv/data/site", "Destination": "/usr/share/nginx/html", "Mode": "ro"}],
+    "NetworkSettings": {"Ports": {"80/tcp": [{"HostPort": "8080"}]}}
+  },
+  {
+    "Id": "deadbeef0001",
+    "Name": "/privileged-tool",
+    "Config": {"User": "root"},
+    "HostConfig": {"Privileged": true, "PidMode": "default", "NetworkMode": "bridge", "CapAdd": null, "SecurityOpt": null},
+    "Mounts": [],
+    "NetworkSettings": {"Ports": {}}
+  },
+  {
+    "Id": "deadbeef0002",
+    "Name": "/host-net-tool",
+    "Config": {"User": "root"},
+    "HostConfig": {"Privileged": false, "PidMode": "host", "NetworkMode": "host", "CapAdd": ["NET_ADMIN"], "SecurityOpt": ["seccomp=unconfined"]},
+    "Mounts": [],
+    "NetworkSettings": {"Ports": {}}
+  },
+  {
+    "Id": "deadbeef0003",
+    "Name": "/dind-runner",
+    "Config": {"User": "root"},
+    "HostConfig": {"Privileged": false, "PidMode": "default", "NetworkMode": "bridge", "CapAdd": null, "SecurityOpt": null},
+    "Mounts": [
+      {"Source": "/var/run/docker.sock", "Destination": "/var/run/docker.sock", "Mode": "rw"}
+    ],
+    "NetworkSettings": {"Ports": {}}
+  },
+  {
+    "Id": "deadbeef0004",
+    "Name": "/etc-reader",
+    "Config": {"User": "root"},
+    "HostConfig": {"Privileged": false, "PidMode": "default", "NetworkMode": "bridge", "CapAdd": ["SYS_ADMIN"], "SecurityOpt": ["apparmor=unconfined"]},
+    "Mounts": [
+      {"Source": "/etc", "Destination": "/host-etc", "Mode": "ro"}
+    ],
+    "NetworkSettings": {"Ports": {}}
+  },
+  {
+    "Id": "deadbeef0005",
+    "Name": "/exposed-docker-api",
+    "Config": {"User": "root"},
+    "HostConfig": {"Privileged": false, "PidMode": "default", "NetworkMode": "bridge", "CapAdd": null, "SecurityOpt": null},
+    "Mounts": [],
+    "NetworkSettings": {"Ports": {"2375/tcp": [{"HostPort": "2375"}]}}
+  }
+]
