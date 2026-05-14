@@ -1,0 +1,106 @@
+# ContainerWatch — sample run (offline mode against examples/sample_inspect.json)
+# Docker daemon not available in this session; offline mode used.
+# Command: container-watch audit --offline --inspect-file examples/sample_inspect.json --no-color
+
+$ container-watch audit --offline --inspect-file examples/sample_inspect.json --no-color
+
+ContainerWatch
+Containers inspected: 6  |  Findings: 15
+
+────────────────────────────────────────────────────────────────────────────────
+[CRITICAL] sensitive_mount  (dind-runner)
+  bind-mount of /var/run/docker.sock (rw) — container can drive the Docker daemon — full host takeover via container escape
+────────────────────────────────────────────────────────────────────────────────
+[CRITICAL] docker_api_exposed  (exposed-docker-api)
+  port 2375/tcp mapped — looks like Docker API exposed without TLS
+────────────────────────────────────────────────────────────────────────────────
+[CRITICAL] privileged_container  (privileged-tool)
+  container started with --privileged — equivalent to root on the host
+────────────────────────────────────────────────────────────────────────────────
+[    HIGH] apparmor_unconfined  (etc-reader)
+  --security-opt apparmor=unconfined disables AppArmor MAC
+────────────────────────────────────────────────────────────────────────────────
+[    HIGH] dangerous_capability  (etc-reader)
+  --cap-add SYS_ADMIN — near-equivalent to root on the host
+────────────────────────────────────────────────────────────────────────────────
+[    HIGH] dangerous_capability  (host-net-tool)
+  --cap-add NET_ADMIN — can manipulate host networking from inside the container
+────────────────────────────────────────────────────────────────────────────────
+[    HIGH] net_host  (host-net-tool)
+  --network=host — container shares the host network stack
+────────────────────────────────────────────────────────────────────────────────
+[    HIGH] pid_host  (host-net-tool)
+  --pid=host — container shares the host's PID namespace
+────────────────────────────────────────────────────────────────────────────────
+[    HIGH] seccomp_unconfined  (host-net-tool)
+  --security-opt seccomp=unconfined disables seccomp syscall filtering
+────────────────────────────────────────────────────────────────────────────────
+[  MEDIUM] root_user  (dind-runner)
+  container process runs as root inside the container — drop with --user
+────────────────────────────────────────────────────────────────────────────────
+[  MEDIUM] root_user  (etc-reader)
+  container process runs as root inside the container — drop with --user
+────────────────────────────────────────────────────────────────────────────────
+[  MEDIUM] sensitive_mount  (etc-reader)
+  bind-mount of /etc (ro) — container can read host configuration including credentials
+────────────────────────────────────────────────────────────────────────────────
+[  MEDIUM] root_user  (exposed-docker-api)
+  container process runs as root inside the container — drop with --user
+────────────────────────────────────────────────────────────────────────────────
+[  MEDIUM] root_user  (host-net-tool)
+  container process runs as root inside the container — drop with --user
+────────────────────────────────────────────────────────────────────────────────
+[  MEDIUM] root_user  (privileged-tool)
+  container process runs as root inside the container — drop with --user
+────────────────────────────────────────────────────────────────────────────────
+
+Summary: [CRITICAL] 3  [    HIGH] 6  [  MEDIUM] 6
+
+Exit code: 1  (at least one critical/high finding)
+
+---
+
+# JSON output mode: container-watch audit --offline --inspect-file examples/sample_inspect.json --json
+
+{
+  "containers_inspected": 6,
+  "total_findings": 15,
+  "findings": [
+    {
+      "severity": "critical",
+      "rule": "sensitive_mount",
+      "container": "dind-runner",
+      "detail": "bind-mount of /var/run/docker.sock (rw) — container can drive the Docker daemon — full host takeover via container escape",
+      "extra": {"source": "/var/run/docker.sock", "destination": "/var/run/docker.sock", "mode": "rw"}
+    },
+    {
+      "severity": "critical",
+      "rule": "docker_api_exposed",
+      "container": "exposed-docker-api",
+      "detail": "port 2375/tcp mapped — looks like Docker API exposed without TLS",
+      "extra": {}
+    },
+    {
+      "severity": "critical",
+      "rule": "privileged_container",
+      "container": "privileged-tool",
+      "detail": "container started with --privileged — equivalent to root on the host",
+      "extra": {}
+    },
+    {
+      "severity": "high",
+      "rule": "apparmor_unconfined",
+      "container": "etc-reader",
+      "detail": "--security-opt apparmor=unconfined disables AppArmor MAC",
+      "extra": {}
+    },
+    {
+      "severity": "high",
+      "rule": "dangerous_capability",
+      "container": "etc-reader",
+      "detail": "--cap-add SYS_ADMIN — near-equivalent to root on the host",
+      "extra": {"capability": "SYS_ADMIN"}
+    },
+    ... (10 more findings)
+  ]
+}
