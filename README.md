@@ -94,17 +94,17 @@ Tails the Docker events stream and audits each new container as it starts. Drop 
 
 ```
 ContainerWatch
-Containers inspected: 6  |  Findings: 11
+Containers inspected: 6  |  Findings: 15
 
 ────────────────────────────────────────────────────────────────────────
-[CRITICAL] privileged_container  (privileged-tool)
-  container started with --privileged — equivalent to root on the host
-────────────────────────────────────────────────────────────────────────
 [CRITICAL] sensitive_mount  (dind-runner)
-  bind-mount of /var/run/docker.sock (rw) — container can drive the Docker daemon
+  bind-mount of /var/run/docker.sock (rw) — container can drive the Docker daemon — full host takeover via container escape
 ────────────────────────────────────────────────────────────────────────
 [CRITICAL] docker_api_exposed  (exposed-docker-api)
   port 2375/tcp mapped — looks like Docker API exposed without TLS
+────────────────────────────────────────────────────────────────────────
+[CRITICAL] privileged_container  (privileged-tool)
+  container started with --privileged — equivalent to root on the host
 ────────────────────────────────────────────────────────────────────────
 [    HIGH] dangerous_capability  (host-net-tool)
   --cap-add NET_ADMIN — can manipulate host networking from inside the container
@@ -113,7 +113,7 @@ Containers inspected: 6  |  Findings: 11
   --network=host — container shares the host network stack
 ────────────────────────────────────────────────────────────────────────
 ...
-Summary: [CRITICAL] 3  [    HIGH] 5  [  MEDIUM] 3
+Summary: [CRITICAL] 3  [    HIGH] 6  [  MEDIUM] 6
 ```
 
 ---
