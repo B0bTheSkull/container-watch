@@ -63,6 +63,7 @@ def cmd_monitor(args: argparse.Namespace) -> int:
         return 2
 
     print(f"ContainerWatch monitoring Docker events (Ctrl-C to stop)\n", flush=True)
+    exit_code = 0  # mirrors audit mode: non-zero once any critical/high is seen
     try:
         for event in client.events(decode=True, filters={"type": "container", "event": "start"}):
             cid = event.get("id", "")
@@ -78,9 +79,11 @@ def cmd_monitor(args: argparse.Namespace) -> int:
                 continue
             for f in findings:
                 print(f"{f.severity.upper():>8}  {name}  {f.rule}  {f.detail}", flush=True)
+                if f.severity in ("critical", "high"):
+                    exit_code = 1
     except KeyboardInterrupt:
         print("\nstopped.", file=sys.stderr)
-    return 0
+    return exit_code
 
 
 def build_parser() -> argparse.ArgumentParser:

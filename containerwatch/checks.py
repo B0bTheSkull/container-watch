@@ -95,10 +95,19 @@ def check_sensitive_mounts(container: dict) -> list[Finding]:
     for mount in container.get("Mounts", []) or []:
         src = mount.get("Source", "")
         mode = mount.get("Mode", "rw")
+        # `Mode` is a raw, label-laden string (e.g. "ro,Z" or "rprivate") and
+        # substring-matching it misclassifies mounts ("rprivate" contains no
+        # "ro" token but is read-write; "shared" etc.). The mount's `RW`
+        # boolean is docker's authoritative read/write flag — prefer it, and
+        # only fall back to the legacy Mode parse when RW is absent.
+        if "RW" in mount:
+            rw = bool(mount["RW"])
+        else:
+            rw = "ro" not in mode.split(",")
         for sensitive, why in SENSITIVE_HOST_PATHS.items():
             if src == sensitive or src.startswith(sensitive + "/"):
                 # docker.sock is critical even read-only because socket access = control
-                ro = "ro" in mode
+                ro = not rw
                 if "docker.sock" in src:
                     severity = "critical"
                 elif ro:
@@ -122,7 +131,7 @@ def check_dangerous_capabilities(container: dict) -> list[Finding]:
     caps_added = container.get("HostConfig", {}).get("CapAdd") or []
     out: list[Finding] = []
     for cap in caps_added:
-        # ldap3 / docker normalize differently; strip CAP_ prefix
+        # docker may or may not include the CAP_ prefix; normalize it off.
         cap_name = cap.upper().removeprefix("CAP_")
         if cap_name in DANGEROUS_CAPS:
             out.append(

@@ -76,6 +76,26 @@ def test_etc_mount_readonly_medium():
     assert etc_finding.severity == "medium"  # ro mount
 
 
+def test_rw_boolean_takes_precedence_over_mode_string():
+    # Real `docker inspect` emits an RW boolean plus a label-laden Mode string.
+    # A read-only mount whose Mode does not literally contain "ro" must still
+    # be classified read-only (medium), driven by RW=false.
+    container = {
+        "Name": "/rw-test",
+        "Mounts": [{"Source": "/etc", "Destination": "/host-etc", "Mode": "z", "RW": False}],
+    }
+    findings = check_sensitive_mounts(container)
+    etc = next(f for f in findings if "/etc" in f.detail)
+    assert etc.severity == "medium"
+
+    # Conversely RW=true must be high even if Mode happens to contain "ro".
+    container["Mounts"][0]["RW"] = True
+    container["Mounts"][0]["Mode"] = "rprivate"
+    findings = check_sensitive_mounts(container)
+    etc = next(f for f in findings if "/etc" in f.detail)
+    assert etc.severity == "high"
+
+
 def test_root_user_detected():
     findings = check_running_as_root(_by_name(_records(), "/privileged-tool"))
     assert findings and findings[0].severity == "medium"
